@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Memory game</title>
+</head>
+<style>
+    /* first we start by making a gaming board */
+    div#memory_board{
+        background: #000bff;
+        border: #ff001a 1px solid;
+        width:800px;
+        height:540px;
+        padding:25px;
+        margin:0px auto;
+    }
+    /* now we will make the cards */
+    div#memory_board > div{
+        background: url(image/cardback_18.png);
+        background-size: 110px 110px;
+        border:#000 1px solid;
+        width:71px;
+        height:71px;
+        float:left;
+        margin:10px;
+        padding:20px;
+        font-size:64px;
+        cursor:pointer;
+        text-align:center;
+    }
+</style>
+<script>
+// first we make an array that will include all the letters that will be under the cards
+    var memory_array = ['ا','ا','ب','ب','ت','ت','ث','ث','ج','ج','ح','ح','خ','خ','د','د','ر','ر','ز','ز','س','س','ش','ش'];
+    // We also make an empty array to store memory values
+    var memory_values = [];
+    // We will make another empty array that will store the filpped cards id
+    var memory_cards_ids = [];
+    var cards_flipped = 0;
+
+    // now we will try and make a shuffle function
+// The prototype constructor allows you to add new properties and methods to the Array() object.
+    Array.prototype.memory_card_shuffle = function(){
+        // i is the array length, j is a random number, temp is gonna hold our temporary value so we can swap them.
+        var i = this.length, j, temp;
+        while(--i > 0){
+            j = Math.floor(Math.random() * (i+1));
+            // we swap the numbers here
+            temp = this[j];
+            this[j] = this[i];
+            this[i] = temp;
+        }
+    }
+
+    // here we make a new board
+    function newBoard(){
+        // all the cards that are flipped should return to 0
+        cards_flipped = 0;
+        var output = '';
+        // here we shuffle our cards
+        memory_array.memory_card_shuffle();
+        // then we make a for loop for all the cards
+        for(var i = 0; i < memory_array.length; i++){
+            // we give every card an id equal to i, and a clickevent to flip.
+            output += '<div id="card_'+i+'" onclick="memoryFlipCard(this,\''+memory_array[i]+'\')"></div>';
+        }
+        // here we put our output in our memory board
+        document.getElementById('memory_board').innerHTML = output;
+    }
+
+    // We make a function for the flipped cards
+    function memoryFlipCard(card,val){
+        if(card.innerHTML == "" && memory_values.length < 2){
+            card.style.background = '#FFF';
+            card.innerHTML = val;
+            // in the 3 lines above we say that only 2 cards are allowed to be flipped at a time, and the background color of the card.
+            if(memory_values.length == 0){
+                // here we push the cards value and id into two different arrays
+                memory_values.push(val);
+                memory_cards_ids.push(card.id);
+            } else if(memory_values.length == 1){
+                // We do the same thing with the second card
+                memory_values.push(val);
+                memory_cards_ids.push(card.id);
+                // We check if the first card and the second card are equal.
+                if(memory_values[0] == memory_values[1]){
+                    // if they are we change the cards_flipped variable to 2 and clear both arrays
+                    cards_flipped += 2;
+                    // Clear both arrays
+                    memory_values = [];
+                    memory_cards_ids = [];
+                    // Check to see if the whole board is cleared
+                    if(cards_flipped == memory_array.length){
+                        alert("You win......try again");
+                        // The innerHTML property sets or returns the HTML content (inner HTML) of an element.
+                        document.getElementById('memory_board').innerHTML = "";
+                        newBoard();
+                    }
+                } else {
+                    // If no match
+                    function flip2Back(){
+                        // Flip the 2 cards back over
+                        var card_1 = document.getElementById(memory_cards_ids[0]);
+                        var card_2 = document.getElementById(memory_cards_ids[1]);
+                        // Problem here
+                        card_1.style.background = 'url(image/cardback_18.png)';
+                        card_1.innerHTML = "";
+                        card_2.style.background = 'url(image/cardback_18.png)';
+                        card_2.innerHTML = "";
+                        // Clear both arrays
+                        memory_values = [];
+                        memory_cards_ids = [];
+                    }
+                    // 500 stand for how long the cards will stay flipped until they flip back in ms
+                    setTimeout(flip2Back, 500);
+                }
+            }
+        }
+    }
+</script>
+<body style="background-color: red">
+<div id="memory_board"></div>
+<script>newBoard();</script>
+</body>
+</html>
